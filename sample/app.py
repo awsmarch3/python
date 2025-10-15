@@ -1,14 +1,17 @@
-# Use official Python base image
-FROM python:3.10-slim
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
-# Set working directory inside the container
-WORKDIR /app
+class SimpleHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        # Set response status code
+        self.send_response(200)
+        # Set response headers
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        # Write response body
+        self.wfile.write(b"Hello, Docker! This is a pure Python web app.")
 
-# Copy our app into the container
-COPY app.py .
-
-# Expose port 8000 for our app
-EXPOSE 8000
-
-# Run the Python app
-CMD ["python", "app.py"]
+if __name__ == '__main__':
+    server_address = ('0.0.0.0', 8000)
+    httpd = HTTPServer(server_address, SimpleHandler)
+    print("Starting server on port 8000...")
+    httpd.serve_forever()
