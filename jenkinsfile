@@ -1,0 +1,41 @@
+pipeline {
+    agent {
+        docker {
+            image 'python:3.11'
+            args '-u root'   // <<<<<< FIX
+        }
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'docker-jenkins-agent',
+                    url: 'https://github.com/awsmarch3/python.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                    mkdir -p python
+                    pip install -r requirements.txt -t python/ --no-cache-dir
+                '''
+            }
+        }
+
+        stage('Install zip') {
+            steps {
+                sh '''
+                    apt-get update
+                    apt-get install -y zip
+                '''
+            }
+        }
+
+        stage('Zip Layer') {
+            steps {
+                sh 'zip -r layer.zip python'
+            }
+        }
+    }
+}
